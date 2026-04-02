@@ -94,8 +94,16 @@ async function apiFetch(params) {
   const data = await res.json();
 
   if (data.error) {
-    // Token expired — force sign-out so user re-authenticates
-    if (data.error.includes("expired") || data.error.includes("Invalid or expired")) {
+    if (data.error.includes("Access denied")) {
+      sessionStorage.clear();
+      idToken = null;
+      document.getElementById("app").style.display          = "none";
+      document.getElementById("auth-overlay").style.display = "flex";
+      document.getElementById("g_id_signin").style.display  = "none";
+      const p = document.querySelector(".auth-box p");
+      if (p) p.style.display = "none";
+      showAuthError("⛔ Access denied. Your account is not authorised to use this app.");
+    } else if (data.error.includes("expired") || data.error.includes("Invalid or expired")) {
       sessionStorage.clear();
       idToken = null;
       showAuthError("Your session expired. Please sign in again.");
