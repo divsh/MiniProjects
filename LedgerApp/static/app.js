@@ -33,6 +33,9 @@ function initAuth() {
     cancel_on_tap_outside: false,
   });
 
+  document.getElementById("g_id_signin").style.display = "block";
+  document.querySelector(".auth-box p").textContent    = "Sign in with your Google account to continue.";
+  document.querySelector(".auth-box p").style.display  = "block";
   google.accounts.id.renderButton(
     document.getElementById("g_id_signin"),
     { theme: "outline", size: "large", text: "sign_in_with" }
@@ -53,12 +56,18 @@ function onSignIn(response) {
 }
 
 function showApp(email) {
-  document.getElementById("auth-overlay").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  document.getElementById("user-email").textContent = email;
+  // Keep overlay visible with a loading message until the first API call succeeds
+  document.getElementById("auth-overlay").style.display = "flex";
+  document.getElementById("g_id_signin").style.display  = "none";
+  document.querySelector(".auth-box p").textContent     = "Verifying access…";
 
-  loadAll();
-  loadPaymentMethods();
+  loadAll().then(authorised => {
+    if (!authorised) return; // access denied — overlay already updated
+    document.getElementById("auth-overlay").style.display = "none";
+    document.getElementById("app").style.display          = "block";
+    document.getElementById("user-email").textContent     = email;
+    loadPaymentMethods();
+  });
 }
 
 function signOut() {
@@ -204,8 +213,12 @@ async function loadAll() {
     ]);
     populateAccountList();
     restoreLastAccount();
+    return true;
   } catch (e) {
-    showError("Failed to load data: " + e.message);
+    if (!e.message.includes("Access denied")) {
+      showError("Failed to load data: " + e.message);
+    }
+    return false;
   }
 }
 
