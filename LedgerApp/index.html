@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚖️ Ledger App</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='85'>⚖️</text></svg>">
+  <link rel="stylesheet" href="static/style.css" />
+</head>
+<body>
+
+<!-- ── Auth overlay ───────────────────────────────────────────────── -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <h1>⚖️ Ledger</h1>
+    <p>Sign in with your Google account to continue.</p>
+    <div id="g_id_signin"></div>
+    <p id="auth-error" class="auth-error" style="display:none;"></p>
+  </div>
+</div>
+
+<!-- ── App (hidden until signed in) ──────────────────────────────── -->
+<div id="app" style="display:none;">
+
+  <header class="app-header">
+    <h1>⚖️ Ledger</h1>
+    <div class="spacer"></div>
+    <span id="user-email" class="user-email"></span>
+    <a href="static/help.html" target="_blank" class="btn-help">Help</a>
+    <button class="btn-signout" id="sign-out-btn">Sign out</button>
+  </header>
+
+  <main class="main">
+
+    <div id="global-error" class="error-banner" style="display:none;"></div>
+
+    <!-- ── Balance card ──────────────────────────────────────────── -->
+    <div id="balance-card" class="balance-card" style="display:none;">
+      <div>
+        <div class="label">Account</div>
+        <div class="account-name" id="balance-account-name"></div>
+      </div>
+      <div class="spacer"></div>
+      <div style="text-align:right;">
+        <div class="balance-label">Outstanding Balance</div>
+        <div class="balance-value" id="balance-value">—</div>
+      </div>
+    </div>
+
+    <!-- ── Add Transaction form ───────────────────────────────────── -->
+    <div class="form-card">
+      <h2>Add Transaction</h2>
+      <form id="txn-form" autocomplete="off">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="form-account-input">Account *</label>
+            <input type="text" id="form-account-input" list="account-list"
+                   placeholder="Type or select account…" autocomplete="off" />
+            <datalist id="account-list"></datalist>
+            <div id="ac-hint" class="field-hint"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="form-trans-date">Transaction Date</label>
+            <input type="date" id="form-trans-date" />
+          </div>
+
+          <div class="form-group">
+            <label for="form-amount">Amount *
+              &nbsp;<small style="color:#2e7d32;">+ lent out</small>
+              &nbsp;<small style="color:#888;">/</small>
+              &nbsp;<small style="color:#c62828;">− returned to you</small>
+            </label>
+            <input type="text" id="form-amount" placeholder="e.g. 500 or -200" required />
+          </div>
+
+          <div class="form-group">
+            <label for="form-payment">Payment Method</label>
+            <input type="text" id="form-payment" list="payment-methods-list"
+                   placeholder="bank transfer, cash, UPI…" />
+            <datalist id="payment-methods-list"></datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="form-from-to">Sent From / To</label>
+            <input type="text" id="form-from-to" placeholder="e.g. WP A1 to ANZ" />
+          </div>
+
+          <div class="form-group full">
+            <label for="form-purpose">Purpose / Note *</label>
+            <textarea id="form-purpose" placeholder="Reason for lending or returning…" required></textarea>
+          </div>
+
+        </div>
+
+        <div class="form-footer">
+          <button type="submit" class="btn-primary" id="save-btn">Save Transaction</button>
+          <span id="form-status" class="status-msg"></span>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- ── All-accounts summary ──────────────────────────────────── -->
+    <div class="table-card" id="summary-section" style="display:none;">
+      <div class="table-header">
+        <span class="table-title">All Accounts</span>
+        <span class="txn-count" id="summary-count"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Account</th><th style="text-align:right;">Balance</th></tr>
+          </thead>
+          <tbody id="summary-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Transaction table ─────────────────────────────────────── -->
+    <div class="table-card" id="table-section">
+      <div class="table-header">
+        <span class="table-title">Transactions</span>
+        <span class="txn-count" id="txn-count"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Entry Date</th>
+              <th>Trans. Date</th>
+              <th>Amount</th>
+              <th>Purpose</th>
+              <th>Payment Method</th>
+              <th>From / To</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody id="txn-body">
+            <tr>
+              <td colspan="7" class="no-data">Select an account above to view transactions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div><!-- #app -->
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="static/app.js"></script>
+</body>
+</html>

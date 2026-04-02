@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚖️ Ledger — Help</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='85'>⚖️</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+    header span { color: #aaa; font-size: 13px; }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
+
+    /* Table of contents */
+    .toc {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .toc h2 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase;
+               letter-spacing: 0.5px; margin-bottom: 12px; }
+    .toc ol { padding-left: 18px; line-height: 2; }
+    .toc a  { color: #4a6fa5; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Section cards */
+    .section {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+      scroll-margin-top: 20px;
+    }
+
+    .section h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .section h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin: 16px 0 8px;
+    }
+
+    p { line-height: 1.7; color: #333; margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol { padding-left: 20px; line-height: 2; color: #333; margin-bottom: 10px; }
+    ul:last-child, ol:last-child { margin-bottom: 0; }
+
+    code {
+      background: #f0f2f8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      color: #1a1a2e;
+    }
+
+    /* Hint colour examples */
+    .hint-green  { color: #2e7d32; font-style: italic; font-size: 13px; }
+    .hint-red    { color: #c62828; font-size: 13px; }
+
+    /* Balance colour chips */
+    .chip {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .chip.positive { background: #e8f5e9; color: #2e7d32; }
+    .chip.negative { background: #ffebee; color: #c62828; }
+    .chip.zero     { background: #f5f5f5; color: #888; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+    th { text-align: left; padding: 8px 12px; background: #f8f9fb;
+         font-weight: 600; color: #444; border-bottom: 2px solid #e8e8e8; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Admin box */
+    .admin-box {
+      background: #f8f9fb;
+      border: 1px solid #e0e4ef;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+    .admin-box p { margin-bottom: 6px; }
+
+    .back-to-top {
+      display: block;
+      text-align: right;
+      margin-top: 16px;
+      font-size: 12px;
+      color: #4a6fa5;
+      text-decoration: none;
+    }
+    .back-to-top:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      main { padding: 14px 10px 40px; }
+      .section { padding: 16px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header id="top">
+  <h1>⚖️ Ledger</h1>
+  <span>Help &amp; User Guide</span>
+</header>
+
+<main>
+
+  <!-- Table of contents -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#signin">Signing In</a></li>
+      <li><a href="#layout">App Layout</a></li>
+      <li><a href="#accounts">Selecting an Account</a></li>
+      <li><a href="#account-format">Account Name Format</a></li>
+      <li><a href="#all-accounts">All Accounts View</a></li>
+      <li><a href="#add">Adding a Transaction</a></li>
+      <li><a href="#table">Transaction Table</a></li>
+      <li><a href="#colours">Balance Colours</a></li>
+      <li><a href="#mobile">Mobile Use</a></li>
+      <li><a href="#data">Data &amp; Storage</a></li>
+      <li><a href="#admin">Administrator Notes</a></li>
+    </ol>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--1. Overview -->
+  <div class="section" id="overview">
+    <h2>1. Overview</h2>
+    <p>Ledger is a web app for tracking personal lending and borrowing transactions.
+    All data is stored directly in a Google Spreadsheet. The app reads and writes
+    to the sheet via Google Apps Script — no separate server or database is needed.</p>
+    <p>Access is restricted to approved Google accounts configured by the administrator.</p>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--2. Sign in -->
+  <div class="section" id="signin">
+    <h2>2. Signing In</h2>
+    <ol>
+      <li>Open the app URL in your browser.</li>
+      <li>Click the <strong>Sign in with Google</strong> button.</li>
+      <li>Choose your Google account.</li>
+      <li>If your account is not on the approved list, access is denied.</li>
+    </ol>
+    <p>Your session stays active for the current browser tab. Closing the tab signs
+    you out. Use the <strong>Sign out</strong> button in the top-right header to
+    sign out manually.</p>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--3. Layout -->
+  <div class="section" id="layout">
+    <h2>3. App Layout</h2>
+    <p>The app has three sections shown top to bottom:</p>
+    <table>
+      <tr><th>Section</th><th>Purpose</th></tr>
+      <tr><td><strong>Balance Card</strong></td><td>Shows the selected account name and outstanding balance.</td></tr>
+      <tr><td><strong>Add Transaction</strong></td><td>Form to record a new lending or repayment transaction.</td></tr>
+      <tr><td><strong>Transactions</strong></td><td>Table of all transactions for the selected account.</td></tr>
+    </table>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--4. Selecting account -->
+  <div class="section" id="accounts">
+    <h2>4. Selecting an Account</h2>
+    <p>The <strong>Account</strong> field in the Add Transaction form controls everything on the page:</p>
+    <ul>
+      <li>Click or start typing to see a filtered list of existing accounts.</li>
+      <li>Select <strong>All Accounts</strong> to see a summary of all accounts and their balances.</li>
+      <li>Select a specific account to load its balance and transaction history.</li>
+    </ul>
+    <p>The last selected account is remembered when you refresh the page.</p>
+
+    <h3>Hints below the field</h3>
+    <p><span class="hint-green">New ledger will be created: "alice (NZD)"</span>
+       — the name you typed is valid and a new account will be created on save.</p>
+    <p><span class="hint-red">Include a currency code, e.g. "johnSmith (NZD)"</span>
+       — the name is missing a currency code.</p>
+    <p>No hint — the name matches an existing account.</p>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--5. Account name format -->
+  <div class="section" id="account-format">
+    <h2>5. Account Name Format</h2>
+    <p>Account names must end with a three-letter currency code in parentheses:</p>
+    <table>
+      <tr><th>Valid examples</th><th>Invalid examples</th></tr>
+      <tr><td><code>johnSmith (NZD)</code></td><td><code>John Smith</code> — missing currency</td></tr>
+      <tr><td><code>aliceBrown (AUD)</code></td><td><code>johnSmith NZD</code> — not in parentheses</td></tr>
+      <tr><td><code>raj (USD)</code></td><td></td></tr>
+    </table>
+
+    <h3>Rules for new account names</h3>
+    <ul>
+      <li>The name part is stored in <strong>camelCase</strong> (no spaces).
+          <br>Example: <code>john smith (NZD)</code> → stored as <code>johnSmith (NZD)</code></li>
+      <li>The currency code is always stored in <strong>UPPERCASE</strong>.
+          <br>Example: <code>alice (nzd)</code> → stored as <code>alice (NZD)</code></li>
+      <li>Matching is <strong>case-insensitive</strong> — typing <code>JOHNSMITH (NZD)</code>
+          finds the existing <code>johnSmith (NZD)</code> account.</li>
+    </ul>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--6. All accounts -->
+  <div class="section" id="all-accounts">
+    <h2>6. All Accounts View</h2>
+    <p>Select <strong>All Accounts</strong> from the account dropdown to see a summary across all accounts.</p>
+
+    <h3>Balance Card (top)</h3>
+    <ul>
+      <li>Account name shows <em>All Accounts</em>.</li>
+      <li>Balance shows the total outstanding <strong>per currency</strong>
+          (e.g. <code>NZD 3,200.00</code> and <code>AUD (500.00)</code> as separate lines).</li>
+      <li>Each currency total is colour-coded.</li>
+    </ul>
+
+    <h3>Accounts Summary Table</h3>
+    <ul>
+      <li>Lists every account with its current outstanding balance.</li>
+      <li>Balances are colour-coded: green (positive), red (negative), grey (zero).</li>
+    </ul>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--7. Adding a transaction -->
+  <div class="section" id="add">
+    <h2>7. Adding a Transaction</h2>
+    <table>
+      <tr><th>Field</th><th>Description</th><th>Required</th></tr>
+      <tr>
+        <td><strong>Account</strong></td>
+        <td>Select an existing account or type a new one (see Account Name Format).</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td><strong>Transaction Date</strong></td>
+        <td>The date the money moved. Leave blank if unknown.</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td><strong>Amount</strong></td>
+        <td>
+          <span style="color:#2e7d32;font-weight:600;">Positive (+)</span> — you lent money out.<br>
+          <span style="color:#c62828;font-weight:600;">Negative (−)</span> — money was returned to you.<br>
+          Examples: <code>500</code> = lent $500 &nbsp;|&nbsp; <code>-200</code> = $200 returned to you
+        </td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td><strong>Payment Method</strong></td>
+        <td>How the money was sent (bank transfer, cash, UPI…). Start typing to see previous entries.</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td><strong>Sent From / To</strong></td>
+        <td>Bank account or reference, e.g. <code>WP A1 to ANZ</code>.</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td><strong>Purpose / Note</strong></td>
+        <td>Reason for the transaction.</td>
+        <td>Yes</td>
+      </tr>
+    </table>
+    <p>Click <strong>Save Transaction</strong> to record the entry. The Entry Date (today's date)
+    is recorded automatically. The Account Balance in column H is calculated by the
+    spreadsheet formula and is never overwritten by the app.</p>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--8. Transaction table -->
+  <div class="section" id="table">
+    <h2>8. Transaction Table</h2>
+    <p>Transactions are sorted by <strong>Entry Date (newest first)</strong>, then
+    <strong>Transaction Date (newest first)</strong> as a tiebreaker.</p>
+    <table>
+      <tr><th>Column</th><th>Description</th></tr>
+      <tr><td><strong>Entry Date</strong></td><td>Date the record was entered into the app.</td></tr>
+      <tr><td><strong>Trans. Date</strong></td><td>Date the money actually moved.</td></tr>
+      <tr><td><strong>Amount</strong></td><td>Green = lent out. Red = returned.</td></tr>
+      <tr><td><strong>Purpose</strong></td><td>Reason for the transaction.</td></tr>
+      <tr><td><strong>Payment Method</strong></td><td>How money was transferred.</td></tr>
+      <tr><td><strong>From / To</strong></td><td>Bank or account reference.</td></tr>
+      <tr><td><strong>Balance</strong></td><td>Running outstanding balance from the spreadsheet formula.</td></tr>
+    </table>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--9. Colours -->
+  <div class="section" id="colours">
+    <h2>9. Balance Colours</h2>
+    <p>
+      <span class="chip positive">1,200.00</span> Positive — money is owed to you.<br><br>
+      <span class="chip negative">(500.00)</span> Negative — you owe money.<br><br>
+      <span class="chip zero">0.00</span> Zero — fully settled.
+    </p>
+    <p>This colour coding is consistent across the balance card, accounts summary table,
+    and transaction table balance column.</p>
+    <p>Negative amounts are displayed in accounting style with parentheses:
+    <code>(500.00)</code> means minus 500.</p>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--10. Mobile -->
+  <div class="section" id="mobile">
+    <h2>10. Mobile Use</h2>
+    <p>The app is optimised for mobile screens (640 px and below):</p>
+    <ul>
+      <li>All form fields stack vertically for easy tapping.</li>
+      <li>The email address is hidden in the header to save space.</li>
+      <li>The transaction table switches to a <strong>card-per-row layout</strong>
+          — each transaction is shown as a small card with labelled fields,
+          avoiding horizontal scrolling.</li>
+    </ul>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--11. Data -->
+  <div class="section" id="data">
+    <h2>11. Data &amp; Storage</h2>
+    <ul>
+      <li>All transactions are saved directly to the Google Spreadsheet.</li>
+      <li>Column H (Account Balance) contains spreadsheet formulas —
+          <strong>do not manually clear or overwrite column H.</strong></li>
+      <li>The app caches all account and transaction data when it loads.
+          After saving a transaction the cache is automatically refreshed.</li>
+      <li>No data is stored on any third-party server.</li>
+    </ul>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+  <!--12. Admin -->
+  <div class="section" id="admin">
+    <h2>12. Administrator Notes</h2>
+
+    <h3>Adding or removing approved users</h3>
+    <ol>
+      <li>Open the Apps Script project linked to the spreadsheet.</li>
+      <li>Go to <strong>Project Settings → Script Properties</strong>.</li>
+      <li>Edit the <code>ALLOWED_EMAILS</code> property (comma-separated Gmail addresses).</li>
+      <li>No redeployment needed — the change takes effect immediately.</li>
+    </ol>
+
+    <h3>Required Script Properties</h3>
+    <div class="admin-box">
+      <p><code>SPREADSHEET_ID</code> &nbsp;— ID from the Google Sheets URL</p>
+      <p><code>SHEET_NAME</code> &nbsp;— Tab name, e.g. <code>Common Ledger</code></p>
+      <p><code>GOOGLE_CLIENT_ID</code> &nbsp;— OAuth 2.0 Client ID from Google Cloud Console</p>
+      <p><code>ALLOWED_EMAILS</code> &nbsp;— Comma-separated approved Gmail addresses</p>
+    </div>
+
+    <h3>Updating the app code (Code.gs)</h3>
+    <ol>
+      <li>Paste updated code into the Apps Script editor and save.</li>
+      <li><strong>Deploy → Manage deployments → Edit (pencil) → New version → Deploy.</strong></li>
+      <li>The <code>/exec</code> URL stays the same — no need to update <code>app.js</code>.</li>
+    </ol>
+  <a href="#top" class="back-to-top">↑ Top</a>
+  </div>
+
+</main>
+</body>
+</html>
