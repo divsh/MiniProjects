@@ -32,11 +32,12 @@ function doPost(e) {
     const payload = req.payload || {};
 
     switch (req.action) {
-      case 'saveRecord': return respond(saveRecord(payload, email));
-      case 'getHistory': return respond(getHistory(payload.rego));
-      case 'getAllRegos': return respond(getAllRegos());
-      case 'getRecord':  return respond(getRecord(payload.pageId));
-      default:           return respond({ success: false, error: 'Unknown action: ' + req.action });
+      case 'verifyAccess': return respond({ success: true });
+      case 'saveRecord':   return respond(saveRecord(payload, email));
+      case 'getHistory':   return respond(getHistory(payload.rego));
+      case 'getAllRegos':  return respond(getAllRegos());
+      case 'getRecord':    return respond(getRecord(payload.pageId));
+      default:             return respond({ success: false, error: 'Unknown action: ' + req.action });
     }
 
   } catch (err) {

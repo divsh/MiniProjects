@@ -132,18 +132,36 @@ window.onload = function () {
 
 function handleCredentialResponse(response) {
   const credential = response.credential;
-  const payload = parseJwt(credential);
+  const payload    = parseJwt(credential);
 
-  if (CONFIG.ALLOWED_EMAILS.map(e => e.toLowerCase()).includes(payload.email.toLowerCase())) {
-    currentUser = {
-      email:      payload.email,
-      name:       payload.name,
-      picture:    payload.picture,
-      credential: credential
-    };
-    showApp();
-  } else {
+  // Store user info immediately so callApi can attach the credential
+  currentUser = {
+    email:      payload.email,
+    name:       payload.name,
+    picture:    payload.picture,
+    credential: credential
+  };
+
+  // Authorisation is enforced server-side; verify before opening the app
+  verifyAccess();
+}
+
+async function verifyAccess() {
+  showLoading(true, 'Verifying access…');
+  try {
+    const result = await callApi('verifyAccess');
+    if (result.success) {
+      showApp();
+    } else {
+      currentUser = null;
+      showScreen('deniedScreen');
+    }
+  } catch (err) {
+    currentUser = null;
     showScreen('deniedScreen');
+    console.error('Access verification failed:', err);
+  } finally {
+    showLoading(false);
   }
 }
 
