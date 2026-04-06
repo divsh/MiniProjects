@@ -47,7 +47,8 @@ function doPost(e) {
       case 'getRecord':         return respond(getRecord(payload.pageId));
       case 'sendMechanicEmail': return respond(sendMechanicEmailAction(payload.pageId));
       default:                  return respond({ success: false, error: 'Unknown action: ' + req.action });
-    }
+  
+      }
 
   } catch (err) {
     console.error('doPost error:', err);
@@ -419,10 +420,16 @@ function buildEmailHtml(rec, formUrl) {
     let itemRows = '';
     Object.keys(catData.items || {}).forEach(function(itemName) {
       const d = catData.items[itemName] || {};
-      const icon = d.checked ? '✅' : '⬜';
+      const status = d.status || (d.checked ? 'inspected' : 'none');
+      const icon   = status === 'replaced'  ? '🔧' : status === 'inspected' ? '🔍' : '⬜';
+      const badge  = status === 'replaced'
+        ? '<span style="font-size:11px;padding:1px 6px;border-radius:4px;background:#F0FDF4;color:#16A34A;font-weight:600;margin-left:6px;">Replaced</span>'
+        : status === 'inspected'
+        ? '<span style="font-size:11px;padding:1px 6px;border-radius:4px;background:#EFF6FF;color:#2563EB;font-weight:600;margin-left:6px;">Inspected</span>'
+        : '';
       const comment = d.comment ? '<br><span style="color:#64748B;font-size:12px;">💬 ' + d.comment + '</span>' : '';
       itemRows += '<tr><td style="padding:6px 8px;border-bottom:1px solid #F1F5F9;font-size:14px;">' +
-                  icon + ' ' + itemName + comment + '</td></tr>';
+                  icon + ' ' + itemName + badge + comment + '</td></tr>';
     });
     if (itemRows) {
       checklistRows += '<tr><td style="padding:10px 8px 4px;font-weight:600;font-size:13px;color:#2563EB;background:#EFF6FF;">' +

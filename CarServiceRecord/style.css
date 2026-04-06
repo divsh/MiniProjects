@@ -332,7 +332,7 @@ input::placeholder, textarea::placeholder { color: #94A3B8; }
 
 .checklist-item {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr auto 240px;
   gap: .75rem;
   align-items: center;
   padding: .55rem .75rem;
@@ -341,17 +341,46 @@ input::placeholder, textarea::placeholder { color: #94A3B8; }
   transition: background .1s;
 }
 
-.checklist-item:hover { background: #F8FAFC; border-color: var(--border); }
-.checklist-item.is-checked { background: var(--success-light); border-color: #BBF7D0; }
+.checklist-item:hover      { background: #F8FAFC; border-color: var(--border); }
+.checklist-item.is-inspected { background: #EFF6FF; border-color: #BFDBFE; }
+.checklist-item.is-replaced  { background: var(--success-light); border-color: #BBF7D0; }
 
-.checkbox-label {
+/* ── Status Buttons (Inspected / Replaced) ───────────────── */
+.status-btns {
   display: flex;
+  gap: .35rem;
   align-items: center;
-  gap: .65rem;
-  cursor: pointer;
-  user-select: none;
+  flex-shrink: 0;
 }
 
+.status-btn {
+  padding: .3rem .65rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  font-size: .78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: all .15s;
+  line-height: 1.4;
+}
+.status-btn:hover { border-color: #94A3B8; background: #F8FAFC; }
+
+.status-btn.btn-inspected.active {
+  background: #EFF6FF;
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+.status-btn.btn-replaced.active {
+  background: var(--success-light);
+  border-color: var(--success);
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* keep a dummy rule where checkbox was so existing selectors don't break */
 .checkbox-label input[type="checkbox"] {
   width: 17px;
   height: 17px;
@@ -367,10 +396,8 @@ input::placeholder, textarea::placeholder { color: #94A3B8; }
   line-height: 1.4;
 }
 
-.checklist-item.is-checked .item-text {
-  color: var(--success);
-  font-weight: 500;
-}
+.checklist-item.is-inspected .item-text { color: var(--primary); font-weight: 500; }
+.checklist-item.is-replaced  .item-text { color: var(--success); font-weight: 500; }
 
 .item-comment {
   font-size: .82rem;
@@ -635,7 +662,7 @@ input::placeholder, textarea::placeholder { color: #94A3B8; }
   font-size: .85rem;
 }
 
-.detail-checklist-item.checked { background: var(--success-light); }
+.detail-checklist-item.checked { background: var(--success-light); border-color: #BBF7D0; }
 
 .check-icon { font-size: .95rem; flex-shrink: 0; margin-top: .05rem; }
 
@@ -643,6 +670,16 @@ input::placeholder, textarea::placeholder { color: #94A3B8; }
 
 .item-name { color: var(--text); line-height: 1.4; }
 .detail-checklist-item.checked .item-name { color: var(--success); font-weight: 500; }
+
+.item-status-label {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+.item-status-label.status-inspected { background: #EFF6FF; color: var(--primary); }
+.item-status-label.status-replaced  { background: var(--success-light); color: var(--success); }
 
 .item-comment-note {
   font-size: .78rem;
@@ -722,6 +759,7 @@ input::placeholder, textarea::placeholder { color: #94A3B8; }
     gap: .4rem;
   }
 
+  .status-btns { flex-wrap: wrap; }
   .item-comment { max-width: 100%; }
 
   .detail-grid {
