@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Service Record</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════════════ -->
+<div id="loginScreen" class="screen">
+  <div class="login-card">
+    <div class="login-logo">🔧</div>
+    <h1 class="login-title">Car Service Record</h1>
+    <p class="login-subtitle">Track your vehicle maintenance history</p>
+    <div id="googleSignInBtn" class="google-btn-wrap"></div>
+    <p class="login-note">Access is restricted to authorised users only</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ACCESS DENIED SCREEN
+═══════════════════════════════════════════════════════════ -->
+<div id="deniedScreen" class="screen hidden">
+  <div class="login-card">
+    <div class="login-logo">🚫</div>
+    <h2>Access Denied</h2>
+    <p class="login-subtitle">Your account is not authorised to access this application.</p>
+    <button class="btn btn-secondary" onclick="signOut()">Sign Out &amp; Try Again</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN APPLICATION
+═══════════════════════════════════════════════════════════ -->
+<div id="appScreen" class="screen hidden">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <span class="header-icon">🔧</span>
+        <span class="header-title">Car Service Record</span>
+      </div>
+      <div class="header-user">
+        <img id="userAvatar" class="user-avatar" src="" alt="">
+        <span id="userName" class="user-name"></span>
+        <button class="btn btn-sm btn-ghost" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="new-service" onclick="switchTab('new-service')">
+        ➕ New Service
+      </button>
+      <button class="tab-btn" data-tab="history" onclick="switchTab('history')">
+        📋 Service History
+      </button>
+    </nav>
+  </header>
+
+  <main class="app-main">
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         TAB: NEW SERVICE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="tab-new-service" class="tab-content active">
+
+      <!-- SECTION 1 · Vehicle & Service Details -->
+      <section class="card" id="vehicleSection">
+        <h2 class="section-title">🚗 Vehicle &amp; Service Details</h2>
+        <div class="form-grid">
+
+          <div class="form-group required">
+            <label for="rego">Vehicle Registration (Rego)</label>
+            <input type="text" id="rego" placeholder="e.g. ABC123"
+                   autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+          </div>
+
+          <div class="form-group required">
+            <label for="serviceDate">Service Date</label>
+            <input type="date" id="serviceDate">
+          </div>
+
+          <div class="form-group">
+            <label for="vehicleMake">Vehicle Make / Model</label>
+            <input type="text" id="vehicleMake" placeholder="e.g. Toyota RAV4 Hybrid">
+          </div>
+
+          <div class="form-group">
+            <label for="odometer">Odometer (km)</label>
+            <input type="number" id="odometer" placeholder="e.g. 45000" min="0">
+          </div>
+
+          <div class="form-group">
+            <label for="nextServiceKm">Next Service at (km)</label>
+            <input type="number" id="nextServiceKm" placeholder="e.g. 50000" min="0">
+          </div>
+
+          <div class="form-group">
+            <label for="nextServiceDate">Next Service Date</label>
+            <input type="date" id="nextServiceDate">
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 2 · Mechanic Details -->
+      <section class="card" id="mechanicSection">
+        <h2 class="section-title">👨‍🔧 Mechanic &amp; Workshop</h2>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="mechanicName">Mechanic Name</label>
+            <input type="text" id="mechanicName" placeholder="e.g. John Smith">
+          </div>
+
+          <div class="form-group">
+            <label for="mechanicPhone">Mechanic Phone</label>
+            <input type="tel" id="mechanicPhone" placeholder="e.g. 0412 345 678">
+          </div>
+
+          <div class="form-group">
+            <label for="workshopName">Workshop Name</label>
+            <input type="text" id="workshopName" placeholder="e.g. City Auto Service">
+          </div>
+
+          <div class="form-group">
+            <label for="workshopAddress">Workshop Address</label>
+            <input type="text" id="workshopAddress" placeholder="e.g. 123 Main St, Melbourne">
+          </div>
+
+          <div class="form-group">
+            <label for="serviceCost">Total Cost ($)</label>
+            <input type="number" id="serviceCost" placeholder="e.g. 350.00" min="0" step="0.01">
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECTION 3 · Checklist -->
+      <section class="card" id="checklistSection">
+        <div class="checklist-header">
+          <h2 class="section-title">✅ Service Checklist</h2>
+          <div class="checklist-controls">
+            <button class="btn btn-sm btn-ghost" onclick="selectAll(true)">Select All</button>
+            <button class="btn btn-sm btn-ghost" onclick="selectAll(false)">Clear All</button>
+          </div>
+        </div>
+        <p class="section-subtitle">Tick completed items and add comments where relevant</p>
+        <div id="checklistContainer">
+          <!-- Rendered by app.js -->
+        </div>
+      </section>
+
+      <!-- General Notes -->
+      <section class="card">
+        <h2 class="section-title">📝 General Notes</h2>
+        <textarea id="generalNotes" class="notes-area"
+                  placeholder="Any additional notes about this service…" rows="4"></textarea>
+      </section>
+
+      <!-- Save / Clear -->
+      <div class="action-bar">
+        <button id="saveBtn" class="btn btn-primary btn-lg" onclick="saveRecord()">
+          💾 Save Service Record
+        </button>
+        <button class="btn btn-secondary btn-lg" onclick="clearForm()">
+          🗑️ Clear Form
+        </button>
+      </div>
+
+    </div><!-- /tab-new-service -->
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         TAB: SERVICE HISTORY
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div id="tab-history" class="tab-content">
+
+      <!-- Search -->
+      <div class="card">
+        <h2 class="section-title">🔍 Search Service History</h2>
+        <div class="search-row">
+          <input type="text" id="searchRego" placeholder="Enter rego number…"
+                 oninput="this.value=this.value.toUpperCase()"
+                 onkeydown="if(event.key==='Enter') searchHistory()"
+                 autocomplete="off">
+          <button class="btn btn-primary" onclick="searchHistory()">Search</button>
+          <button class="btn btn-secondary" onclick="loadAllRegos()">All Vehicles</button>
+        </div>
+      </div>
+
+      <!-- All Vehicles List -->
+      <div id="regoList" class="hidden">
+        <h3 class="list-heading">Registered Vehicles</h3>
+        <div id="regoListContent" class="rego-grid"></div>
+      </div>
+
+      <!-- History Results -->
+      <div id="historyResults" class="hidden">
+        <div class="results-header">
+          <h3 class="list-heading" id="historyHeading">Service Records</h3>
+          <button class="btn btn-sm btn-ghost" onclick="showRegoList()">← All Vehicles</button>
+        </div>
+        <div id="historyList"></div>
+      </div>
+
+      <!-- Record Detail -->
+      <div id="recordDetail" class="hidden">
+        <div class="results-header">
+          <button class="btn btn-sm btn-ghost" onclick="closeDetail()">← Back to Results</button>
+          <h3 class="list-heading" id="detailTitle">Service Detail</h3>
+        </div>
+        <div id="detailContent"></div>
+      </div>
+
+    </div><!-- /tab-history -->
+
+  </main>
+</div><!-- /appScreen -->
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="spinner"></div>
+  <p id="loadingMsg">Loading…</p>
+</div>
+
+<!-- Scripts: GIS first, then our code -->
+<script src="https://accounts.google.com/gsi/client"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
