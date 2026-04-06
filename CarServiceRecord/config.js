@@ -8,7 +8,7 @@
  * Allowed emails are managed server-side in Google Apps Script
  * Properties (ALLOWED_EMAILS key) — not here.
  */
-const CONFIG = {
+var CONFIG = {
 
   // Google OAuth Client ID (from Google Cloud Console → APIs & Services → Credentials)
   GOOGLE_CLIENT_ID: '337027910929-fa9puqk832t4ut11gtrn0vahk53nog8p.apps.googleusercontent.com',
