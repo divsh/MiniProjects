@@ -118,6 +118,16 @@ window.onload = function () {
     return;
   }
 
+  // Mechanic link: ?token=xxx&pageId=yyy — skip Google auth
+  const params = new URLSearchParams(window.location.search);
+  const mechanicToken  = params.get('token');
+  const mechanicPageId = params.get('pageId');
+  if (mechanicToken && mechanicPageId) {
+    showScreen('mechanicScreen');
+    loadMechanicForm(mechanicPageId, mechanicToken);
+    return;
+  }
+
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
     callback: handleCredentialResponse,
@@ -186,7 +196,7 @@ function signOut() {
 }
 
 function showScreen(id) {
-  ['loginScreen', 'deniedScreen', 'appScreen'].forEach(s => {
+  ['loginScreen', 'deniedScreen', 'appScreen', 'mechanicScreen'].forEach(s => {
     document.getElementById(s).classList.toggle('hidden', s !== id);
   });
 }
@@ -316,6 +326,7 @@ function collectForm() {
     nextServiceDate: fieldVal('nextServiceDate'),
     mechanicName:    fieldVal('mechanicName'),
     mechanicPhone:   fieldVal('mechanicPhone'),
+    mechanicEmail:   fieldVal('mechanicEmail'),
     workshopName:    fieldVal('workshopName'),
     workshopAddress: fieldVal('workshopAddress'),
     serviceCost:     fieldNum('serviceCost'),
@@ -348,7 +359,7 @@ function validateForm(data) {
 }
 
 function clearForm() {
-  ['rego','vehicleMake','mechanicName','mechanicPhone',
+  ['rego','vehicleMake','mechanicName','mechanicPhone','mechanicEmail',
    'workshopName','workshopAddress','generalNotes'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -391,6 +402,17 @@ async function callApi(action, payload = {}) {
     body: JSON.stringify({ action, idToken: currentUser.credential, payload })
   });
 
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// Public API call — no Google token (mechanic actions use token auth instead)
+async function callApiPublic(action, payload = {}) {
+  const url = CONFIG.APPS_SCRIPT_URL;
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ action, payload })
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -567,9 +589,16 @@ function renderDetail(rec) {
         <h3>👨‍🔧 Mechanic &amp; Workshop</h3>
         ${dRow('Mechanic',    rec.mechanicName)}
         ${dRow('Phone',       rec.mechanicPhone)}
+        ${dRow('Email',       rec.mechanicEmail)}
         ${dRow('Workshop',    rec.workshopName)}
         ${dRow('Address',     rec.workshopAddress)}
         ${dRow('Recorded By', rec.savedBy)}
+        ${rec.mechanicEmail ? `
+        <div style="margin-top:1rem;">
+          <button class="btn btn-primary" onclick="sendMechanicEmailRequest('${escAttr(rec.pageId)}')">
+            📧 Request Service Details
+          </button>
+        </div>` : ''}
       </div>
     </div>
 
@@ -675,4 +704,163 @@ function escHtml(str) {
 
 function escAttr(str) {
   return String(str).replace(/'/g, "\\'");
+}
+
+// ═══════════════════════════════════════════════════════════
+// Send Mechanic Email (owner side)
+// ═══════════════════════════════════════════════════════════
+
+async function sendMechanicEmailRequest(pageId) {
+  showLoading(true, 'Sending email…');
+  try {
+    const result = await callApi('sendMechanicEmail', { pageId });
+    if (result.success) {
+      showToast('Email sent to mechanic ✓', 'success');
+    } else {
+      showToast('Failed: ' + (result.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  } finally {
+    showLoading(false);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Mechanic Form (token-based, no Google auth)
+// ═══════════════════════════════════════════════════════════
+
+let _mechanicPageId  = null;
+let _mechanicToken   = null;
+
+async function loadMechanicForm(pageId, token) {
+  _mechanicPageId = pageId;
+  _mechanicToken  = token;
+
+  try {
+    const result = await callApiPublic('getMechanicForm', { pageId, token });
+    if (!result.success) {
+      hide('mechanicLoading');
+      show('mechanicError');
+      return;
+    }
+    renderMechanicForm(result.record);
+  } catch (err) {
+    hide('mechanicLoading');
+    show('mechanicError');
+    console.error('loadMechanicForm error:', err);
+  }
+}
+
+function renderMechanicForm(rec) {
+  hide('mechanicLoading');
+
+  // Summary
+  document.getElementById('mechanicSummary').innerHTML = `
+    <div class="card" style="margin:0;">
+      <h3>🚗 Vehicle &amp; Service</h3>
+      ${dRow('Registration', rec.rego)}
+      ${dRow('Service Date', fmtDate(rec.serviceDate))}
+      ${dRow('Vehicle',      rec.vehicleMake)}
+      ${dRow('Odometer',     rec.odometer ? rec.odometer.toLocaleString() + ' km' : '')}
+    </div>
+    <div class="card" style="margin:0;">
+      <h3>👨‍🔧 Mechanic &amp; Workshop</h3>
+      ${dRow('Mechanic',  rec.mechanicName)}
+      ${dRow('Workshop',  rec.workshopName)}
+      ${dRow('Address',   rec.workshopAddress)}
+    </div>`;
+
+  // Checklist — pre-fill from existing data
+  const container = document.getElementById('mechanicChecklistContainer');
+  container.innerHTML = CHECKLIST_DATA.map(cat => {
+    const catData = (rec.checklist || {})[cat.id] || { items: {} };
+    return `
+      <div class="checklist-category">
+        <h3 class="category-title">
+          ${cat.icon} ${cat.label}
+          <span class="category-progress" id="mprog-${cat.id}">0/${cat.items.length}</span>
+        </h3>
+        <div class="checklist-items">
+          ${cat.items.map((item, i) => {
+            const d = (catData.items || {})[item] || { checked: false, comment: '' };
+            return `
+              <div class="checklist-item ${d.checked ? 'is-checked' : ''}" id="mrow-${cat.id}-${i}">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="mchk-${cat.id}-${i}"
+                         ${d.checked ? 'checked' : ''}
+                         onchange="onMechanicCheckChange('${cat.id}', ${i})">
+                  <span class="item-text">${escHtml(item)}</span>
+                </label>
+                <input type="text" class="item-comment" id="mcmt-${cat.id}-${i}"
+                       placeholder="Add comment…" value="${escHtml(d.comment || '')}">
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Pre-fill notes
+  document.getElementById('mechanicNotes').value = rec.generalNotes || '';
+
+  // Update progress badges
+  CHECKLIST_DATA.forEach(cat => updateMechanicProgress(cat.id));
+
+  show('mechanicForm');
+}
+
+function onMechanicCheckChange(catId, idx) {
+  const row = document.getElementById(`mrow-${catId}-${idx}`);
+  const checked = document.getElementById(`mchk-${catId}-${idx}`).checked;
+  row.classList.toggle('is-checked', checked);
+  updateMechanicProgress(catId);
+}
+
+function updateMechanicProgress(catId) {
+  const cat = CHECKLIST_DATA.find(c => c.id === catId);
+  const done = cat.items.filter((_, i) => document.getElementById(`mchk-${catId}-${i}`)?.checked).length;
+  const el = document.getElementById(`mprog-${catId}`);
+  if (!el) return;
+  el.textContent = `${done}/${cat.items.length}`;
+  el.className = 'category-progress' + (done === cat.items.length ? ' complete' : done > 0 ? ' partial' : '');
+}
+
+function collectMechanicChecklist() {
+  const data = {};
+  CHECKLIST_DATA.forEach(cat => {
+    data[cat.id] = { label: cat.label, items: {} };
+    cat.items.forEach((item, i) => {
+      data[cat.id].items[item] = {
+        checked: document.getElementById(`mchk-${cat.id}-${i}`)?.checked || false,
+        comment: (document.getElementById(`mcmt-${cat.id}-${i}`)?.value || '').trim()
+      };
+    });
+  });
+  return data;
+}
+
+async function submitMechanicDetails() {
+  const btn = document.getElementById('mechanicSubmitBtn');
+  btn.disabled = true;
+  showLoading(true, 'Submitting…');
+  try {
+    const result = await callApiPublic('submitMechanicUpdate', {
+      pageId:       _mechanicPageId,
+      token:        _mechanicToken,
+      checklist:    collectMechanicChecklist(),
+      generalNotes: (document.getElementById('mechanicNotes')?.value || '').trim()
+    });
+    if (result.success) {
+      hide('mechanicForm');
+      show('mechanicSuccess');
+    } else {
+      showToast('Failed: ' + (result.error || 'Unknown error'), 'error');
+      btn.disabled = false;
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+    btn.disabled = false;
+  } finally {
+    showLoading(false);
+  }
 }

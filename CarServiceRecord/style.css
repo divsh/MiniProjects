@@ -44,6 +44,24 @@ body {
 .screen { min-height: 100vh; }
 .hidden { display: none !important; }
 
+/* ── Mechanic Screen ─────────────────────────────────────── */
+.mechanic-header {
+  background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.mechanic-header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.mechanic-header-inner .header-icon  { font-size: 1.4rem; }
+.mechanic-header-inner .header-title { color: #fff; font-size: 1.1rem; font-weight: 700; }
+
 /* ── Login Card ──────────────────────────────────────────── */
 #loginScreen,
 #deniedScreen {

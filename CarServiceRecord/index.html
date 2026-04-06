@@ -34,6 +34,54 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
+     MECHANIC FORM SCREEN  (token-based, no Google auth)
+═══════════════════════════════════════════════════════════ -->
+<div id="mechanicScreen" class="screen hidden">
+  <div class="mechanic-header">
+    <div class="mechanic-header-inner">
+      <span class="header-icon">🔧</span>
+      <span class="header-title">Service Checklist</span>
+    </div>
+  </div>
+  <main class="app-main">
+    <div id="mechanicLoading" class="card" style="text-align:center;padding:3rem;">
+      <div class="spinner" style="margin:0 auto 1rem;"></div>
+      <p>Loading service details…</p>
+    </div>
+    <div id="mechanicError" class="card hidden" style="text-align:center;padding:3rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🔗</div>
+      <h2 style="margin-bottom:.5rem;">Link Expired</h2>
+      <p class="login-subtitle">This link is invalid or has already been used.</p>
+    </div>
+    <div id="mechanicForm" class="hidden">
+      <section class="card">
+        <h2 class="section-title">🚗 Service Details</h2>
+        <div id="mechanicSummary" class="detail-grid"></div>
+      </section>
+      <section class="card" id="mechanicChecklistSection">
+        <h2 class="section-title">✅ Service Checklist</h2>
+        <p class="section-subtitle">Tick completed items and add comments where relevant</p>
+        <div id="mechanicChecklistContainer"></div>
+      </section>
+      <section class="card">
+        <h2 class="section-title">📝 General Notes</h2>
+        <textarea id="mechanicNotes" class="notes-area" placeholder="Any additional notes…" rows="4"></textarea>
+      </section>
+      <div class="action-bar">
+        <button id="mechanicSubmitBtn" class="btn btn-primary btn-lg" onclick="submitMechanicDetails()">
+          💾 Submit Service Details
+        </button>
+      </div>
+    </div>
+    <div id="mechanicSuccess" class="card hidden" style="text-align:center;padding:3rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">✅</div>
+      <h2 style="margin-bottom:.5rem;">Details Submitted!</h2>
+      <p class="login-subtitle">The service record has been updated successfully. You can close this page.</p>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
      MAIN APPLICATION
 ═══════════════════════════════════════════════════════════ -->
 <div id="appScreen" class="screen hidden">
@@ -122,6 +170,11 @@
           <div class="form-group">
             <label for="mechanicPhone">Mechanic Phone</label>
             <input type="tel" id="mechanicPhone" placeholder="e.g. 0412 345 678">
+          </div>
+
+          <div class="form-group">
+            <label for="mechanicEmail">Mechanic Email</label>
+            <input type="email" id="mechanicEmail" placeholder="e.g. john@workshop.com.au">
           </div>
 
           <div class="form-group">
