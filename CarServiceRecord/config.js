@@ -11,9 +11,9 @@
 const CONFIG = {
 
   // Google OAuth Client ID (from Google Cloud Console → APIs & Services → Credentials)
-  GOOGLE_CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID: '337027910929-fa9puqk832t4ut11gtrn0vahk53nog8p.apps.googleusercontent.com',
 
   // Deployed Google Apps Script Web App URL (from Apps Script → Deploy → Manage Deployments)
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/YOUR_SCRIPT_DEPLOYMENT_ID/exec'
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx0ccrZiz0hR2vKNaZ884ROVd67gKXPavY6cSsXvXbRfJ3WZbSSRb-R-tF2jMhLpvQI/exec'
 
 };
