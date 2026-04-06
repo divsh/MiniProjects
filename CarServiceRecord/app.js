@@ -232,75 +232,86 @@ function switchTab(tab) {
 // Checklist Rendering
 // ═══════════════════════════════════════════════════════════
 
-function renderChecklist() {
-  const container = document.getElementById('checklistContainer');
-  container.innerHTML = CHECKLIST_DATA.map(cat => `
+// ─── Unified checklist helpers ───────────────────────────────
+// prefix='' → main service form   prefix='m' → mechanic form
+
+function renderChecklistInto(containerId, prefix, existingData) {
+  document.getElementById(containerId).innerHTML = CHECKLIST_DATA.map(cat => {
+    const catData = (existingData || {})[cat.id] || { items: {} };
+    return `
     <div class="checklist-category">
       <h3 class="category-title">
         ${cat.icon} ${cat.label}
-        <span class="category-progress" id="prog-${cat.id}">0/${cat.items.length}</span>
+        <span class="category-progress" id="${prefix}prog-${cat.id}">0/${cat.items.length}</span>
       </h3>
       <div class="checklist-items">
-        ${cat.items.map((item, i) => `
-          <div class="checklist-item" id="row-${cat.id}-${i}">
+        ${cat.items.map((item, i) => {
+          const d      = (catData.items || {})[item] || {};
+          const status = d.status || (d.checked ? 'inspected' : 'none');
+          return `
+          <div class="checklist-item${status !== 'none' ? ' is-'+status : ''}" id="${prefix}row-${cat.id}-${i}">
             <span class="item-text">${escHtml(item)}</span>
             <div class="status-btns">
-              <button class="status-btn btn-inspected" id="sinsp-${cat.id}-${i}"
-                      onclick="onStatusChange('${cat.id}', ${i}, 'inspected')"
+              <button class="status-btn btn-inspected${status === 'inspected' ? ' active' : ''}"
+                      id="${prefix}sinsp-${cat.id}-${i}"
+                      onclick="onStatusChange('${cat.id}',${i},'inspected','${prefix}')"
                       title="Mark as Inspected">🔍 Inspected</button>
-              <button class="status-btn btn-replaced" id="srepl-${cat.id}-${i}"
-                      onclick="onStatusChange('${cat.id}', ${i}, 'replaced')"
+              <button class="status-btn btn-replaced${status === 'replaced' ? ' active' : ''}"
+                      id="${prefix}srepl-${cat.id}-${i}"
+                      onclick="onStatusChange('${cat.id}',${i},'replaced','${prefix}')"
                       title="Mark as Replaced">🔧 Replaced</button>
             </div>
-            <input type="text"
-                   class="item-comment"
-                   id="cmt-${cat.id}-${i}"
-                   placeholder="Add comment…"
+            <input type="text" class="item-comment" id="${prefix}cmt-${cat.id}-${i}"
+                   placeholder="Add comment…" value="${escHtml(d.comment || '')}"
                    aria-label="Comment for ${escHtml(item)}">
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+  CHECKLIST_DATA.forEach(cat => updateProgress(cat.id, prefix));
 }
 
-function onStatusChange(catId, idx, newStatus) {
-  const current = getRowStatus(catId, idx);
-  setRowStatus(catId, idx, current === newStatus ? 'none' : newStatus);
-  updateProgress(catId);
+function renderChecklist() {
+  renderChecklistInto('checklistContainer', '', null);
 }
 
-function getRowStatus(catId, idx) {
-  if (document.getElementById(`sinsp-${catId}-${idx}`)?.classList.contains('active')) return 'inspected';
-  if (document.getElementById(`srepl-${catId}-${idx}`)?.classList.contains('active')) return 'replaced';
+function onStatusChange(catId, idx, newStatus, prefix = '') {
+  const current = getRowStatus(catId, idx, prefix);
+  setRowStatus(catId, idx, current === newStatus ? 'none' : newStatus, prefix);
+  updateProgress(catId, prefix);
+}
+
+function getRowStatus(catId, idx, prefix = '') {
+  if (document.getElementById(`${prefix}sinsp-${catId}-${idx}`)?.classList.contains('active')) return 'inspected';
+  if (document.getElementById(`${prefix}srepl-${catId}-${idx}`)?.classList.contains('active')) return 'replaced';
   return 'none';
 }
 
-function setRowStatus(catId, idx, status) {
-  const row  = document.getElementById(`row-${catId}-${idx}`);
-  const insp = document.getElementById(`sinsp-${catId}-${idx}`);
-  const repl = document.getElementById(`srepl-${catId}-${idx}`);
+function setRowStatus(catId, idx, status, prefix = '') {
+  const row  = document.getElementById(`${prefix}row-${catId}-${idx}`);
+  const insp = document.getElementById(`${prefix}sinsp-${catId}-${idx}`);
+  const repl = document.getElementById(`${prefix}srepl-${catId}-${idx}`);
   insp?.classList.toggle('active', status === 'inspected');
   repl?.classList.toggle('active', status === 'replaced');
   row?.classList.remove('is-inspected', 'is-replaced');
   if (status !== 'none') row?.classList.add(`is-${status}`);
 }
 
-function updateProgress(catId) {
-  const cat   = CHECKLIST_DATA.find(c => c.id === catId);
-  const total = cat.items.length;
-  const done  = cat.items.filter((_, i) => getRowStatus(catId, i) !== 'none').length;
-  const el    = document.getElementById(`prog-${catId}`);
+function updateProgress(catId, prefix = '') {
+  const cat  = CHECKLIST_DATA.find(c => c.id === catId);
+  const done = cat.items.filter((_, i) => getRowStatus(catId, i, prefix) !== 'none').length;
+  const el   = document.getElementById(`${prefix}prog-${catId}`);
   if (!el) return;
-  el.textContent = `${done}/${total}`;
+  el.textContent = `${done}/${cat.items.length}`;
   el.className = 'category-progress' +
-    (done === total ? ' complete' : done > 0 ? ' partial' : '');
+    (done === cat.items.length ? ' complete' : done > 0 ? ' partial' : '');
 }
 
 function selectAll(state) {
   CHECKLIST_DATA.forEach(cat => {
-    cat.items.forEach((_, i) => setRowStatus(cat.id, i, state ? 'inspected' : 'none'));
-    updateProgress(cat.id);
+    cat.items.forEach((_, i) => setRowStatus(cat.id, i, state ? 'inspected' : 'none', ''));
+    updateProgress(cat.id, '');
   });
 }
 
@@ -308,17 +319,14 @@ function selectAll(state) {
 // Form — Collect & Validate
 // ═══════════════════════════════════════════════════════════
 
-function collectChecklist() {
+function collectChecklist(prefix = '') {
   const data = {};
   CHECKLIST_DATA.forEach(cat => {
-    data[cat.id] = {
-      label: cat.label,
-      items: {}
-    };
+    data[cat.id] = { label: cat.label, icon: cat.icon, items: {} };
     cat.items.forEach((item, i) => {
       data[cat.id].items[item] = {
-        status:  getRowStatus(cat.id, i),
-        comment: (document.getElementById(`cmt-${cat.id}-${i}`)?.value || '').trim()
+        status:  getRowStatus(cat.id, i, prefix),
+        comment: (document.getElementById(`${prefix}cmt-${cat.id}-${i}`)?.value || '').trim()
       };
     });
   });
@@ -784,93 +792,11 @@ function renderMechanicForm(rec) {
       ${dRow('Address',   rec.workshopAddress)}
     </div>`;
 
-  // Checklist — pre-fill from existing data
-  const container = document.getElementById('mechanicChecklistContainer');
-  container.innerHTML = CHECKLIST_DATA.map(cat => {
-    const catData = (rec.checklist || {})[cat.id] || { items: {} };
-    return `
-      <div class="checklist-category">
-        <h3 class="category-title">
-          ${cat.icon} ${cat.label}
-          <span class="category-progress" id="mprog-${cat.id}">0/${cat.items.length}</span>
-        </h3>
-        <div class="checklist-items">
-          ${cat.items.map((item, i) => {
-            const d = (catData.items || {})[item] || {};
-            const status = d.status || (d.checked ? 'inspected' : 'none');
-            return `
-              <div class="checklist-item${status !== 'none' ? ' is-'+status : ''}" id="mrow-${cat.id}-${i}">
-                <span class="item-text">${escHtml(item)}</span>
-                <div class="status-btns">
-                  <button class="status-btn btn-inspected${status === 'inspected' ? ' active' : ''}"
-                          id="msinsp-${cat.id}-${i}"
-                          onclick="onMechanicStatusChange('${cat.id}', ${i}, 'inspected')"
-                          title="Mark as Inspected">🔍 Inspected</button>
-                  <button class="status-btn btn-replaced${status === 'replaced' ? ' active' : ''}"
-                          id="msrepl-${cat.id}-${i}"
-                          onclick="onMechanicStatusChange('${cat.id}', ${i}, 'replaced')"
-                          title="Mark as Replaced">🔧 Replaced</button>
-                </div>
-                <input type="text" class="item-comment" id="mcmt-${cat.id}-${i}"
-                       placeholder="Add comment…" value="${escHtml(d.comment || '')}">
-              </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  }).join('');
+  // Checklist — pre-fill from existing data using shared renderer
+  renderChecklistInto('mechanicChecklistContainer', 'm', rec.checklist);
 
-  // Pre-fill notes
   document.getElementById('mechanicNotes').value = rec.generalNotes || '';
-
-  // Update progress badges
-  CHECKLIST_DATA.forEach(cat => updateMechanicProgress(cat.id));
-
   show('mechanicForm');
-}
-
-function onMechanicStatusChange(catId, idx, newStatus) {
-  const current = getMechanicRowStatus(catId, idx);
-  setMechanicRowStatus(catId, idx, current === newStatus ? 'none' : newStatus);
-  updateMechanicProgress(catId);
-}
-
-function getMechanicRowStatus(catId, idx) {
-  if (document.getElementById(`msinsp-${catId}-${idx}`)?.classList.contains('active')) return 'inspected';
-  if (document.getElementById(`msrepl-${catId}-${idx}`)?.classList.contains('active')) return 'replaced';
-  return 'none';
-}
-
-function setMechanicRowStatus(catId, idx, status) {
-  const row  = document.getElementById(`mrow-${catId}-${idx}`);
-  const insp = document.getElementById(`msinsp-${catId}-${idx}`);
-  const repl = document.getElementById(`msrepl-${catId}-${idx}`);
-  insp?.classList.toggle('active', status === 'inspected');
-  repl?.classList.toggle('active', status === 'replaced');
-  row?.classList.remove('is-inspected', 'is-replaced');
-  if (status !== 'none') row?.classList.add(`is-${status}`);
-}
-
-function updateMechanicProgress(catId) {
-  const cat  = CHECKLIST_DATA.find(c => c.id === catId);
-  const done = cat.items.filter((_, i) => getMechanicRowStatus(catId, i) !== 'none').length;
-  const el   = document.getElementById(`mprog-${catId}`);
-  if (!el) return;
-  el.textContent = `${done}/${cat.items.length}`;
-  el.className = 'category-progress' + (done === cat.items.length ? ' complete' : done > 0 ? ' partial' : '');
-}
-
-function collectMechanicChecklist() {
-  const data = {};
-  CHECKLIST_DATA.forEach(cat => {
-    data[cat.id] = { label: cat.label, items: {} };
-    cat.items.forEach((item, i) => {
-      data[cat.id].items[item] = {
-        status:  getMechanicRowStatus(cat.id, i),
-        comment: (document.getElementById(`mcmt-${cat.id}-${i}`)?.value || '').trim()
-      };
-    });
-  });
-  return data;
 }
 
 async function submitMechanicDetails() {
@@ -881,7 +807,7 @@ async function submitMechanicDetails() {
     const result = await callApiPublic('submitMechanicUpdate', {
       pageId:       _mechanicPageId,
       token:        _mechanicToken,
-      checklist:    collectMechanicChecklist(),
+      checklist:    collectChecklist('m'),
       generalNotes: (document.getElementById('mechanicNotes')?.value || '').trim()
     });
     if (result.success) {

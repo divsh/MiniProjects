@@ -404,19 +404,10 @@ function buildEmailHtml(rec, formUrl) {
   const checklist = rec.checklist || {};
   let checklistRows = '';
 
-  const CATS = [
-    { id: 'engine',     icon: '🔧', label: 'Engine & Drivetrain' },
-    { id: 'hybrid',     icon: '⚡', label: 'Hybrid System' },
-    { id: 'brakes',     icon: '🛞', label: 'Brakes & Suspension' },
-    { id: 'cooling',    icon: '🌡️', label: 'Cooling & Fluids' },
-    { id: 'charging',   icon: '🔌', label: 'Charging System' },
-    { id: 'tires',      icon: '🚗', label: 'Tires & Wheels' },
-    { id: 'electrical', icon: '💡', label: 'Electrical & Safety' },
-    { id: 'ac',         icon: '🌬️', label: 'AC & Heating' }
-  ];
-
-  CATS.forEach(function(cat) {
-    const catData = checklist[cat.id] || { items: {} };
+  // Derive category order from checklist JSON (icon + label stored by collectChecklist)
+  Object.keys(checklist).forEach(function(catId) {
+    const catData = checklist[catId] || { items: {} };
+    const cat     = { id: catId, icon: catData.icon || '', label: catData.label || catId };
     let itemRows = '';
     Object.keys(catData.items || {}).forEach(function(itemName) {
       const d = catData.items[itemName] || {};
@@ -433,7 +424,7 @@ function buildEmailHtml(rec, formUrl) {
     });
     if (itemRows) {
       checklistRows += '<tr><td style="padding:10px 8px 4px;font-weight:600;font-size:13px;color:#2563EB;background:#EFF6FF;">' +
-                       cat.icon + ' ' + cat.label + '</td></tr>' + itemRows;
+                       (cat.icon ? cat.icon + ' ' : '') + cat.label + '</td></tr>' + itemRows;
     }
   });
 
